@@ -37,6 +37,7 @@ merged_df = merge(df, demo_df, by='URSI')
 ######
 
 # https://drsimonj.svbtle.com/plotting-individual-observations-and-group-means-with-ggplot2
+# https://johnmuschelli.com/intro_to_r/Data_Visualization/Data_Visualization.pdf
 
 library(dplyr)
 
@@ -287,45 +288,45 @@ library(statmod)
 # # Should be w/i network functional connectivity 
 # # Need to reorganize data
 # 
-# df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_FINAL.csv')
-# 
-# control_model <- '
-# intercept =~ 1*Y1_WNFC_RSN1 + 1*Y2_WNFC_RSN1 + 1*Y3_WNFC_RSN1
-# slope =~ 0*Y1_WNFC_RSN1 + 1*Y2_WNFC_RSN1 + 2*Y3_WNFC_RSN1
-# '
-# 
-# modelfit = growth(control_model, data=df)
-# summary(modelfit)
-# 
-# graph_sem(model = modelfit)
+df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_FINAL.csv')
 
+# Create interaction columns for sex and TSCC
+df$tscc_anx_sex <- df$SexN * df$Y1_TSCC_ANXIETY
+df$tscc_dep_sex <- df$SexN * df$Y1_TSCC_DEP
+df$tscc_pts_sex <- df$SexN * df$Y1_TSCC_PTS
 
-
-
+# Define model and parameters
 
 complex_model <- '
 slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
 intercept =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
-slope + intercept ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + AgeY1 + Site
-# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + slope + intercept ~ AgeY1 + Site
-# Y1_TSCC_ANXIETY~ intercept + slope
-# Y1_TSCC_DEP ~ intercept + slope
-# Y1_TSCC_PTS ~ intercept + slope
-# intercept ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
-# slope ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
-# intercept ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
-# slope ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
+slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 + SexN
+Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex ~ AgeY1 + SexN
+# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS ~ AgeY1 + SexN
+# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS ~ AgeY1 + SexN
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_DEP
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_PTS
+# Y1_TSCC_DEP ~~ Y1_TSCC_PTS
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY
+# Y1_TSCC_DEP ~~ Y1_TSCC_DEP
+# Y1_TSCC_PTS ~~ Y1_TSCC_PTS
 '
+
 
 modelfit = growth(complex_model, data=df)
 summary(modelfit)
+# fitMeasures(modelfit)
 
 # semPaths(modelfit, 'std', edge.label.cex = .5)
-semPaths(modelfit, what='std', edge.label.cex = .8, fade=FALSE, rotation=1, intercepts=FALSE, layout='tree3')
+semPaths(modelfit, what='std', edge.label.cex = .8, label.cex = 3, fade=FALSE,
+         rotation=1, intercepts=FALSE, layout='tree')
 # graph_sem(model = modelfit)
-fitMeasures(modelfit)
 
+# Examine covariance matrix 
+inspectSampleCov(modelfit, data=df)
 
+# Examine correlation matrix of model 
+lavInspect(modelfit, 'cor.all')
 
 
 
