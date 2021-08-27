@@ -299,20 +299,106 @@ df$tscc_pts_sex <- df$SexN * df$Y1_TSCC_PTS
 
 complex_model <- '
 slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
-intercept =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
-# slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 + SexN
-# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex ~ AgeY1 + SexN
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+
+slope + int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS 
+slope + int ~ AgeY1 + SexN
+
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY
+# Y1_TSCC_DEP ~~ Y1_TSCC_DEP
+# Y1_TSCC_PTS ~~ Y1_TSCC_PTS
+
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_DEP
+# Y1_TSCC_ANXIETY ~~ Y1_TSCC_PTS
+# Y1_TSCC_DEP ~~ Y1_TSCC_PTS
+# slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
+# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS  ~ AgeY1 + SexN
 # slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
 '
 
+# lavaan2mplus('C:/Growth_MeanThick_V1_LRAve+Age+TSCC+AgeonTSCC_NoAng_NoGroup_CLEAN+Site+Save.inp', run=FALSE)
 
-modelfit = growth(complex_model, data=df)
-summary(modelfit)
-# fitMeasures(modelfit)
+mplus_model <- '
+slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+int ~~ slope
+int ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+slope ~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+int ~ AgeY1
+slope ~ AgeY1
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+tscc_anx_sex ~ AgeY1
+tscc_dep_sex ~ AgeY1
+tscc_pts_sex ~ AgeY1
+SexN ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_ANXIETY ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_DEP ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_PTS ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_anx_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_dep_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_pts_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+'
+
+# Remove deuplicated model elements from original mplus2lavaan conversion
+mplus_model_modified_sex <- '
+slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+int ~~ slope
+int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
+slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+tscc_anx_sex ~ AgeY1
+tscc_dep_sex ~ AgeY1
+tscc_pts_sex ~ AgeY1
+SexN ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_DEP ~~ Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_PTS ~~ Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_anx_sex ~~ tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_dep_sex ~~ tscc_dep_sex + tscc_pts_sex
+tscc_pts_sex ~~ tscc_pts_sex
+'
+
+mplus_model_modified_no_sex <- '
+slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+int ~~ slope
+int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
+slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+tscc_anx_sex ~ AgeY1
+tscc_dep_sex ~ AgeY1
+tscc_pts_sex ~ AgeY1
+Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_DEP ~~ Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_PTS ~~ Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_anx_sex ~~ tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_dep_sex ~~ tscc_dep_sex + tscc_pts_sex
+tscc_pts_sex ~~ tscc_pts_sex
+'
+
+
+modelfit = growth(mplus_model_modified_no_sex, data=df, fixed.x=TRUE)
+summary(modelfit, fit.measures=TRUE)
+# fitmeasures(modelfit)
+p_val = fitmeasures(modelfit)[5]
+cfi = fitmeasures(modelfit)[9]
+aic = fitmeasures(modelfit)[19]
+bic = fitmeasures(modelfit)[20]
+rmsea = fitmeasures(modelfit)[23]
+
+
+
 
 # semPaths(modelfit, 'std', edge.label.cex = .5)
 semPaths(modelfit, what='std', edge.label.cex = .8, label.cex = 3, fade=FALSE,
-         rotation=1, intercepts=FALSE, layout='tree')
+         rotation=1, intercepts=FALSE, layout='tree2')
 # graph_sem(model = modelfit)
 
 # Examine covariance matrix 
