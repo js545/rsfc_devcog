@@ -300,16 +300,9 @@ df$tscc_pts_sex <- df$SexN * df$Y1_TSCC_PTS
 complex_model <- '
 slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
 intercept =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
-slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 + SexN
-Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex ~ AgeY1 + SexN
-# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS ~ AgeY1 + SexN
-# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS ~ AgeY1 + SexN
-# Y1_TSCC_ANXIETY ~~ Y1_TSCC_DEP
-# Y1_TSCC_ANXIETY ~~ Y1_TSCC_PTS
-# Y1_TSCC_DEP ~~ Y1_TSCC_PTS
-# Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY
-# Y1_TSCC_DEP ~~ Y1_TSCC_DEP
-# Y1_TSCC_PTS ~~ Y1_TSCC_PTS
+# slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 + SexN
+# Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex ~ AgeY1 + SexN
+# slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
 '
 
 
