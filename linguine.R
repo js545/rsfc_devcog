@@ -1,6 +1,8 @@
-df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_modified_for_R.csv')
+# df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_modified_for_R.csv')
+df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_FINAL.csv')
 
-df = subset(df, !is.na(RSN1))
+# df = subset(df, !is.na(RSN1))
+df = subset(df, !is.na(Y1_WNFC_RSN7))
 
 data_count = as.data.frame(table(df$URSI))
 data_count = subset(data_count, Freq > 2)
@@ -316,9 +318,9 @@ slope + int ~ AgeY1 + SexN
 # slope + intercept ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
 '
 
-# lavaan2mplus('C:/Growth_MeanThick_V1_LRAve+Age+TSCC+AgeonTSCC_NoAng_NoGroup_CLEAN+Site+Save.inp', run=FALSE)
+# mplus2lavaan('C:/Growth_MeanThick_V1_LRAve+Age+TSCC+AgeonTSCC_NoAng_NoGroup_CLEAN+Site+Save.inp', run=FALSE)
 
-mplus_model <- '
+mplus_model_original <- '
 slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
 int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
 int ~~ slope
@@ -340,6 +342,39 @@ tscc_anx_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_se
 tscc_dep_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
 tscc_pts_sex ~~ SexN + Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
 '
+
+
+
+"i =~ 1*Y1 + 1*Y2 + 1*Y3\n
+s =~ 0*Y1 + 1*Y2 + 2*Y3\n
+i ~~ s\n
+i ~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+s ~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+i ~ age1\n
+s ~ age1\n
+anx ~ age1\n
+dep ~ age1\n
+pts ~ age1\n
+AnxS ~ age1\n
+DepS ~ age1\n
+PTSS ~ age1\n
+sex ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+anx ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+dep ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+pts ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+AnxS ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+DepS ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+PTSS ~~ sex + anx + dep + pts + AnxS + DepS + PTSS\n
+i ~ Site\n
+s ~ Site\n
+anx ~ Site\n
+dep ~ Site\n
+pts ~ Site\n
+AnxS ~ Site\n
+DepS ~ Site\n
+PTSS ~ Site
+"
+
 
 # Remove deuplicated model elements from original mplus2lavaan conversion
 mplus_model_modified_sex <- '
@@ -363,9 +398,66 @@ tscc_dep_sex ~~ tscc_dep_sex + tscc_pts_sex
 tscc_pts_sex ~~ tscc_pts_sex
 '
 
-mplus_model_modified_no_sex <- '
-slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
-int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+bn_network_no_sex <- '
+slope =~ 0*Y1_Y7_RSN6_RSN7 + 1*Y2_Y7_RSN6_RSN7 + 2*Y3_Y7_RSN6_RSN7
+int =~ 1*Y1_Y7_RSN6_RSN7 + 1*Y2_Y7_RSN6_RSN7 + 1*Y3_Y7_RSN6_RSN7
+int ~~ slope
+int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 +SexN
+slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1 +SexN
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+tscc_anx_sex ~ AgeY1
+tscc_dep_sex ~ AgeY1
+tscc_pts_sex ~ AgeY1
+Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_DEP ~~ Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+Y1_TSCC_PTS ~~ Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_anx_sex ~~ tscc_anx_sex + tscc_dep_sex + tscc_pts_sex
+tscc_dep_sex ~~ tscc_dep_sex + tscc_pts_sex
+tscc_pts_sex ~~ tscc_pts_sex
+'
+
+bn_network_no_sex_no_int <- '
+slope =~ 0*Y1_Y7_RSN5_RSN7 + 1*Y2_Y7_RSN5_RSN7 + 2*Y3_Y7_RSN5_RSN7
+int =~ 1*Y1_Y7_RSN5_RSN7 + 1*Y2_Y7_RSN5_RSN7 + 1*Y3_Y7_RSN5_RSN7
+int ~~ slope
+int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + AgeY1
+slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + AgeY1
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
+Y1_TSCC_DEP ~~ Y1_TSCC_DEP + Y1_TSCC_PTS
+Y1_TSCC_PTS ~~ Y1_TSCC_PTS
+'
+
+# FIML greatly diminishes validity of model
+modelfit = growth(bn_network_no_sex, data=df, fixed.x=TRUE)
+summary(modelfit, fit.measures=TRUE)
+fitmeasures(modelfit)
+
+
+# semPaths(modelfit, 'std', edge.label.cex = .5)
+semPaths(modelfit, what='std', edge.label.cex = .8, label.cex = 3, fade=FALSE,
+         rotation=1, intercepts=FALSE, layout='tree2')
+# graph_sem(model = modelfit)
+
+# Examine covariance matrix 
+inspectSampleCov(modelfit, data=df)
+
+# Examine correlation matrix of model 
+lavInspect(modelfit, 'cor.all')
+
+###################################################################
+# Yeo17 Network
+
+# 9&10 limbic, 11&12&13 control executive, 14&15&16&17 DMN
+
+# Yes Interaction
+model_param <- '
+slope =~ 0*Y1_Y17_WNFC_RSN17 + 1*Y2_Y17_WNFC_RSN17 + 2*Y3_Y17_WNFC_RSN17
+int =~ 1*Y1_Y17_WNFC_RSN17 + 1*Y2_Y17_WNFC_RSN17 + 1*Y3_Y17_WNFC_RSN17
 int ~~ slope
 int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
 slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + tscc_anx_sex + tscc_dep_sex + tscc_pts_sex + AgeY1
@@ -383,36 +475,71 @@ tscc_dep_sex ~~ tscc_dep_sex + tscc_pts_sex
 tscc_pts_sex ~~ tscc_pts_sex
 '
 
+modelfit = growth(model_param, data=df, fixed.x=TRUE)
+# summary(modelfit, fit.measures=TRUE)
+fitmeasures(modelfit)
 
-modelfit = growth(mplus_model_modified_no_sex, data=df, fixed.x=TRUE)
-summary(modelfit, fit.measures=TRUE)
-# fitmeasures(modelfit)
-p_val = fitmeasures(modelfit)[5]
-cfi = fitmeasures(modelfit)[9]
-aic = fitmeasures(modelfit)[19]
-bic = fitmeasures(modelfit)[20]
-rmsea = fitmeasures(modelfit)[23]
+# No Interaction
+model_param <- '
+slope =~ 0*Y1_Y17_WNFC_RSN17 + 1*Y2_Y17_WNFC_RSN17 + 2*Y3_Y17_WNFC_RSN17
+int =~ 1*Y1_Y17_WNFC_RSN17 + 1*Y2_Y17_WNFC_RSN17 + 1*Y3_Y17_WNFC_RSN17
+int ~~ slope
+int ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + AgeY1
+slope ~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS + AgeY1
+Y1_TSCC_ANXIETY ~ AgeY1
+Y1_TSCC_DEP ~ AgeY1
+Y1_TSCC_PTS ~ AgeY1
+Y1_TSCC_ANXIETY ~~ Y1_TSCC_ANXIETY + Y1_TSCC_DEP + Y1_TSCC_PTS
+Y1_TSCC_DEP ~~ Y1_TSCC_DEP + Y1_TSCC_PTS
+Y1_TSCC_PTS ~~ Y1_TSCC_PTS
+'
 
+modelfit = growth(model_param, data=df, fixed.x=TRUE)
+# summary(modelfit, fit.measures=TRUE)
+fitmeasures(modelfit)
 
+###################################################################
+# Iterative Model Building
 
+library(lavaan)
+library(tidySEM)
+library(ggplot2)
+library(dplyr)
+library(semPlot)
+library(statmod)
 
-# semPaths(modelfit, 'std', edge.label.cex = .5)
-semPaths(modelfit, what='std', edge.label.cex = .8, label.cex = 3, fade=FALSE,
+df = read.csv('F:/DevCoG_DevMIND_RS_fMRI/DevCoG_FC_3atlases_FINAL.csv')
+
+# Create interaction columns for sex and TSCC
+df$tscc_anx_sex <- df$SexN * df$Y1_TSCC_ANXIETY
+df$tscc_dep_sex <- df$SexN * df$Y1_TSCC_DEP
+df$tscc_pts_sex <- df$SexN * df$Y1_TSCC_PTS
+
+base_model <- '
+slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
+slope ~ AgeY1 + Y1_TSCC_ANXIETY
+int ~ AgeY1 + Y1_TSCC_ANXIETY
+Y1_TSCC_ANXIETY ~ AgeY1
+'
+
+model_fit = growth(base_model, data=df, fixed.x=TRUE)
+fitmeasures(model_fit)
+
+semPaths(model_fit, what='std', edge.label.cex = .8, label.cex = 3, fade=FALSE,
          rotation=1, intercepts=FALSE, layout='tree2')
-# graph_sem(model = modelfit)
 
-# Examine covariance matrix 
-inspectSampleCov(modelfit, data=df)
+# Networks copy
+'
+slope =~ 0*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 2*Y3_WNFC_RSN5
+int =~ 1*Y1_WNFC_RSN5 + 1*Y2_WNFC_RSN5 + 1*Y3_WNFC_RSN5
 
-# Examine correlation matrix of model 
-lavInspect(modelfit, 'cor.all')
+slope =~ 0*Y1_WNFC_RSN6 + 1*Y2_WNFC_RSN6 + 2*Y3_WNFC_RSN6
+int =~ 1*Y1_WNFC_RSN6 + 1*Y2_WNFC_RSN6 + 1*Y3_WNFC_RSN6
 
-
-
-
-
-
-
+slope =~ 0*Y1_WNFC_RSN7 + 1*Y2_WNFC_RSN7 + 2*Y3_WNFC_RSN7
+int =~ 1*Y1_WNFC_RSN7 + 1*Y2_WNFC_RSN7 + 1*Y3_WNFC_RSN7
+'
 
 
 
